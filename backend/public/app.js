@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadServers() {
         try {
             const response = await fetch('/list-servers');
+            if (!response.ok) {
+                throw new Error('Failed to fetch servers.');
+            }
             const servers = await response.json();
 
             serverList.innerHTML = servers.map(server => `
@@ -79,6 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ containerId: id }),
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to open SSH session.');
+            }
 
             const { sshAddress } = await response.json();
             if (sshAddress) {
