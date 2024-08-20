@@ -90,6 +90,8 @@ app.post('/create-server', ensureAuthenticated, async (req, res) => {
   const { imageName } = req.body;
   const userId = req.user._id;
 
+  console.log(`Received request to create server with image: ${imageName}`); // Debug info
+
   try {
       const container = await docker.createContainer({
           Image: imageName,
@@ -107,10 +109,11 @@ app.post('/create-server', ensureAuthenticated, async (req, res) => {
 
       res.send('Server created successfully.');
   } catch (error) {
-      console.error('Failed to create server:', error);
+      console.error('Failed to create server:', error); // Debug info
       res.status(500).send('Failed to create server.');
   }
 });
+
 
 
 // List servers route
