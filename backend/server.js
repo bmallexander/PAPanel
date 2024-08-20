@@ -7,6 +7,7 @@ const User = require('./models/User');
 const Server = require('./models/Server');
 const Docker = require('dockerode');  // Docker client library
 const docker = new Docker(); // Docker client instance
+const path = require('path')
 const { exec } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
