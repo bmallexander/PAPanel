@@ -87,29 +87,31 @@ app.get('/', ensureAuthenticated, (req, res) => {
 
 // Create server route
 app.post('/create-server', ensureAuthenticated, async (req, res) => {
-    const { imageName } = req.body;
-    const userId = req.user._id;
+  const { imageName } = req.body;
+  const userId = req.user._id;
 
-    try {
-        const container = await docker.createContainer({
-            Image: imageName,
-            Cmd: ['/bin/sh'],
-            Tty: true
-        });
-        await container.start();
+  try {
+      const container = await docker.createContainer({
+          Image: imageName,
+          Cmd: ['/bin/sh'],
+          Tty: true
+      });
+      await container.start();
 
-        const server = new Server({
-            userId,
-            dockerId: container.id,
-            status: 'running'
-        });
-        await server.save();
+      const server = new Server({
+          userId,
+          dockerId: container.id,
+          status: 'running'
+      });
+      await server.save();
 
-        res.send('Server created successfully.');
-    } catch (error) {
-        res.status(500).send('Failed to create server.');
-    }
+      res.send('Server created successfully.');
+  } catch (error) {
+      console.error('Failed to create server:', error);
+      res.status(500).send('Failed to create server.');
+  }
 });
+
 
 // List servers route
 app.get('/list-servers', ensureAuthenticated, async (req, res) => {

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const serverList = document.getElementById('server-list');
 
     form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+        event.preventDefault(); // Prevent default form submission
 
         const imageName = document.getElementById('imageName').value;
 
@@ -11,10 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/create-server', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ imageName }),
             });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
 
             const result = await response.text();
             alert(result);
@@ -22,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadServers();
         } catch (error) {
             console.error('Error:', error);
+            alert('Failed to create server. Please check the console for details.');
         }
     });
 
@@ -52,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`/manage-server/${action}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ containerId: id }),
             });
@@ -70,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/ssh', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ containerId: id }),
             });
