@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/create-server', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ imageName }),
             });
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.text();
             alert(result);
             form.reset();
-            loadServers(); // Load servers after creating one
+            loadServers();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -32,13 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             serverList.innerHTML = servers.map(server => `
                 <tr>
-                    <td>${server.id.substring(0, 12)}...</td>
+                    <td>${server.dockerId.substring(0, 12)}...</td>
                     <td>${server.status}</td>
                     <td>
-                        <button class="btn btn-success btn-sm" onclick="manageServer('${server.id}', 'start')">Start</button>
-                        <button class="btn btn-danger btn-sm" onclick="manageServer('${server.id}', 'stop')">Stop</button>
-                        <button class="btn btn-warning btn-sm" onclick="manageServer('${server.id}', 'restart')">Restart</button>
-                        <button class="btn btn-info btn-sm" onclick="openTmateSession('${server.id}')">Open SSH</button>
+                        <button class="btn btn-success btn-sm" onclick="manageServer('${server.dockerId}', 'start')">Start</button>
+                        <button class="btn btn-danger btn-sm" onclick="manageServer('${server.dockerId}', 'stop')">Stop</button>
+                        <button class="btn btn-warning btn-sm" onclick="manageServer('${server.dockerId}', 'restart')">Restart</button>
+                        <button class="btn btn-info btn-sm" onclick="openTmateSession('${server.dockerId}')">Open SSH</button>
                     </td>
                 </tr>
             `).join('');
@@ -52,14 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`/manage-server/${action}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ containerId: id }),
             });
 
             const result = await response.text();
             alert(result);
-            loadServers(); // Refresh server list after action
+            loadServers();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -70,20 +70,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/ssh', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ containerId: id }),
             });
 
-            const result = await response.text();
-            alert(result);
+            const { sshAddress } = await response.json();
+            if (sshAddress) {
+                alert(`Connect using SSH: ${sshAddress}`);
+            } else {
+                alert('Failed to retrieve SSH session.');
+            }
         } catch (error) {
             console.error('Error:', error);
         }
     };
 
-    loadServers(); // Initial load
-
-    // Polling every 30 seconds
-    setInterval(loadServers, 30000);
+    loadServers();
 });
