@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.text();
             alert(result);
             form.reset();
-            loadServers();
+            loadServers(); // Load servers after creating one
         } catch (error) {
             console.error('Error:', error);
         }
@@ -27,12 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadServers() {
         try {
-            const response = await fetch('/list-servers'); // Create an endpoint for listing servers
+            const response = await fetch('/list-servers');
             const servers = await response.json();
 
             serverList.innerHTML = servers.map(server => `
                 <tr>
-                    <td>${server.id}</td>
+                    <td>${server.id.substring(0, 12)}...</td>
                     <td>${server.status}</td>
                     <td>
                         <button class="btn btn-success btn-sm" onclick="manageServer('${server.id}', 'start')">Start</button>
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.text();
             alert(result);
-            loadServers();
+            loadServers(); // Refresh server list after action
         } catch (error) {
             console.error('Error:', error);
         }
@@ -82,5 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    loadServers();
+    loadServers(); // Initial load
+
+    // Polling every 30 seconds
+    setInterval(loadServers, 30000);
 });

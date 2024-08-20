@@ -122,48 +122,64 @@ app.post('/manage-server/:action', async (req, res) => {
   const { containerId } = req.body;
 
   try {
-    const container = docker.getContainer(containerId);
-    if (action === 'start') await container.start();
-    if (action === 'stop') await container.stop();
-    if (action === 'restart') await container.restart();
-    res.send(`Server ${action}ed.`);
+      const container = docker.getContainer(containerId);
+      if (action === 'start') await container.start();
+      if (action === 'stop') await container.stop();
+      if (action === 'restart') await container.restart();
+      res.send(`Server ${action}ed.`);
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Failed to manage server.');
+      console.error(error);
+      res.status(500).send('Failed to manage server.');
   }
 });
 
-// SSH into Docker container
 app.post('/ssh', async (req, res) => {
   const { containerId } = req.body;
 
   try {
-    const container = docker.getContainer(containerId);
-    const exec = await container.exec({
-      Cmd: ['sh'],
-      AttachStdin: true,
-      AttachStdout: true,
-      AttachStderr: true,
-      Tty: true
-    });
-
-    exec.start((err, stream) => {
-      if (err) return res.status(500).send('Failed to start SSH session.');
-
-      stream.on('data', (data) => {
-        // Handle SSH output here
-        console.log(data.toString());
+      const container = docker.getContainer(containerId);
+      const exec = await container.exec({
+          Cmd: ['tmate', '-S', '/tmp/tmate.sock', 'new-session', '-d'],
+          AttachStdin: true,
+          AttachStdout: true,
+          AttachStderr: true,
+          Tty: true
       });
 
-      stream.on('end', () => {
-        res.send('SSH session ended.');
+      exec.start((err, stream) => {
+          if (err) return res.status(500).send('Failed to start tmate session.');
+
+          // Assuming you have a way to retrieve the tmate session URL or details
+          stream.on('data', (data) => {
+              // Capture tmate output here
+              const output = data.toString();
+              // Parse the tmate session URL from output if needed
+              res.send('tmate session started. Check logs for connection details.');
+          });
       });
-    });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Failed to SSH into server.');
+      console.error(error);
+      res.status(500).send('Failed to SSH into server.');
   }
 });
+
+
+app.get('/list-servers', async (req, res) => {
+  try {
+      const containers = await docker.listContainers({ all: true });
+      const serverList = containers.map(container => ({
+          id: container.Id,
+          status: container.Status.split(' ')[0], // Extract status (e.g., "Up")
+          image: container.Image
+      }));
+      res.json(serverList);
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Failed to list servers.');
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
