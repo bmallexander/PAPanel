@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="btn btn-success btn-sm" onclick="manageServer('${server.id}', 'start')">Start</button>
                         <button class="btn btn-danger btn-sm" onclick="manageServer('${server.id}', 'stop')">Stop</button>
                         <button class="btn btn-warning btn-sm" onclick="manageServer('${server.id}', 'restart')">Restart</button>
+                        <button class="btn btn-info btn-sm" onclick="openTmateSession('${server.id}')">Open SSH</button>
                     </td>
                 </tr>
             `).join('');
@@ -59,6 +60,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.text();
             alert(result);
             loadServers();
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    window.openTmateSession = async (id) => {
+        try {
+            const response = await fetch('/ssh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ containerId: id }),
+            });
+
+            const result = await response.text();
+            alert(result);
         } catch (error) {
             console.error('Error:', error);
         }

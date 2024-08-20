@@ -1,10 +1,10 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
-RUN apt-get update && \
-    apt-get install -y openssh-server && \
-    mkdir /var/run/sshd
+RUN apk update && apk add --no-cache openssh-server tmate
 
-RUN echo 'root:root' | chpasswd
+RUN mkdir /var/run/sshd && \
+    echo 'root:root' | chpasswd && \
+    ssh-keygen -A
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]

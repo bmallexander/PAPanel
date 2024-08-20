@@ -63,24 +63,56 @@ app.get('/auth/discord/callback', async (req, res) => {
 
 // Create a Docker container
 app.post('/create-server', async (req, res) => {
-  const { imageName } = req.body; // Example: 'ubuntu:latest'
+  const { imageName } = req.body;
 
   try {
-    const container = await docker.createContainer({
-      Image: imageName,
-      Cmd: ['/bin/bash'],
-      Tty: true,
-      ExposedPorts: { '22/tcp': {} },
-      HostConfig: {
-        PortBindings: { '22/tcp': [{ HostPort: '2222' }] }
-      }
-    });
+      const container = await docker.createContainer({
+          Image: imageName,
+          Cmd: ['/bin/sh'],
+          Tty: true,
+          ExposedPorts: { '22/tcp': {} },
+          HostConfig: {
+              PortBindings: { '22/tcp': [{ HostPort: '2222' }] }
+          }
+      });
 
-    await container.start();
-    res.status(201).send(`Server created with ID ${container.id}`);
+      await container.start();
+      res.status(201).send(`Server created with ID ${container.id}`);
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Failed to create server.');
+      console.error(error);
+      res.status(500).send('Failed to create server.');
+  }
+});
+
+// Use tmate for SSH access
+app.post('/ssh', async (req, res) => {
+  const { containerId } = req.body;
+
+  try {
+      const container = docker.getContainer(containerId);
+      const exec = await container.exec({
+          Cmd: ['tmate', '-S', '/tmp/tmate.sock', 'new-session', '-d'],
+          AttachStdin: true,
+          AttachStdout: true,
+          AttachStderr: true,
+          Tty: true
+      });
+
+      exec.start((err, stream) => {
+          if (err) return res.status(500).send('Failed to start tmate session.');
+
+          stream.on('data', (data) => {
+              // Handle tmate output here
+              console.log(data.toString());
+          });
+
+          // Send tmate connection details
+          // You need to expose the tmate socket or provide URL in the response
+          res.send('tmate session started. Check logs for connection details.');
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Failed to SSH into server.');
   }
 });
 

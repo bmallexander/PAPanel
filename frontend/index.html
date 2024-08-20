@@ -8,39 +8,48 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header class="my-4">
+    <div class="container mt-4">
+        <header class="mb-4">
             <h1 class="text-center">Docker VPS Manager</h1>
         </header>
 
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Create New Server</h5>
-                <form id="create-server-form">
-                    <div class="mb-3">
-                        <label for="imageName" class="form-label">Docker Image Name</label>
-                        <input type="text" class="form-control" id="imageName" required>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Create New Server</h5>
+                        <form id="create-server-form">
+                            <div class="mb-3">
+                                <label for="imageName" class="form-label">Select Docker Image</label>
+                                <select class="form-select" id="imageName" required>
+                                    <option value="alpine:latest">Alpine</option>
+                                    <!-- Add more options here if needed -->
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Server</button>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Server</button>
-                </form>
+                </div>
             </div>
-        </div>
 
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">Manage Servers</h5>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="server-list">
-                        <!-- Server rows will be injected here -->
-                    </tbody>
-                </table>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Manage Servers</h5>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="server-list">
+                                <!-- Server rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
